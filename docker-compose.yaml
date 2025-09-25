@@ -27,8 +27,6 @@ services:
     ports:
       - 9200:9200
       - 9600:9600
-
-
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
       interval: 10s
@@ -45,7 +43,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     environment:
-      OPENSEARCH_HOSTS: '["http://opensearch-node1:9200"]'
+      - OPENSEARCH_HOSTS=http://opensearch-node1:9200
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
     depends_on:
       - opensearch-node1
 
