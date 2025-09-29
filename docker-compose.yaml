@@ -7,41 +7,22 @@ services:
       - node.name=opensearch-node1
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
       - plugins.security.disabled=true
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=OpensearchAdmin123!
       - plugins.security.audit.type:internal_opensearch
       - plugins.security.audit.enable_rest:true
-      - plugins.security.audit.enable_transport:false
-      - plugins.security.audit.log_request_body:false
-      - plugins.security.audit.ignore_users:["kibanaserver"]
-      - plugins.security.audit.ignore_requests:["HealthRequest"]
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
     volumes:
       - opensearch-data1:/usr/share/opensearch/data
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+      - node1-logs:/usr/share/opensearch/logs
     ports:
       - 9200:9200
       - 9600:9600
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.13.0
     container_name: opensearch-dashboards
     ports:
       - 5601:5601
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     environment:
       - OPENSEARCH_HOSTS=http://opensearch-node1:9200
       - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
@@ -53,14 +34,12 @@ services:
     container_name: vector
     volumes:
       - ./vector.toml:/etc/vector/vector.toml:ro
-      - ./logs:/var/log/app:ro
- 
+      - node1-logs:/app/node1-logs:ro
+
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     depends_on:
       - opensearch-node1
-    entrypoint: ["sh", "-c", "until curl -s http://opensearch-node1:9200 > /dev/null; do echo waiting for opensearch; sleep 5; done; vector"]
-    command: ["--config", "/etc/vector/vector.toml"]
-
 volumes:
   opensearch-data1:
+  node1-logs:

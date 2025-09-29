@@ -1,27 +1,13 @@
-# ========== Sources ==========
-[sources.app_logs]
+[sources.node1_logs]
 type = "file"
-include = ["/var/log/app/*.log"]
-ignore_older = 86400 # 1 day
+include = ["app/node1-logs/*.log", "/app/node1-logs/gc.log*"]
+ignore_older = 0
 
-# ========== Transforms ==========
-[transforms.json_parser]
-type = "remap"
-inputs = ["app_logs"]
-source = '''
-. = parse_json!(.message)
-'''
-
-# ========== Sinks ==========
-[sinks.opensearch]
-type = "elasticsearch"
-inputs = ["json_parser"]
+[sinks.opensearch_logs]
+type = "elasticsearch"    
+inputs = ["node1_logs"]
 endpoints = ["http://opensearch-node1:9200"]
-#api_version = "auto"
-#opensearch_service_type = "managed"
-compression = "none"
-
-[sinks.opensearch.bulk]
-action = "create"
-index = "vector-logs-%Y-%m-%d"
-
+mode = "bulk"
+healthcheck = true
+bulk.index = "vector-logs-%Y.%m.%d"
+api_version = "v7"
