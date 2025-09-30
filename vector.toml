@@ -1,7 +1,9 @@
 [sources.node1_logs]
 type = "file"
-include = ["app/node1-logs/*.log", "/app/node1-logs/gc.log*"]
-ignore_older = 0
+include = [
+  "/app/node1-logs/*.log", 
+  "/app/node1-logs/gc.log*"
+]
 
 [sinks.opensearch_logs]
 type = "elasticsearch"    
@@ -11,3 +13,7 @@ mode = "bulk"
 healthcheck = true
 bulk.index = "vector-logs-%Y.%m.%d"
 api_version = "v7"
+
+[api]
+enabled = true
+address = "http://127.0.0.1:8686"

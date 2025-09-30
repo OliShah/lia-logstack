@@ -1,6 +1,6 @@
 services:
   opensearch-node1:
-    image: opensearchproject/opensearch:2.13.0
+    image: opensearchproject/opensearch:latest
     container_name: opensearch-node1
     environment:
       - cluster.name=opensearch-cluster
@@ -13,13 +13,23 @@ services:
       - plugins.security.audit.enable_rest:true
     volumes:
       - opensearch-data1:/usr/share/opensearch/data
+      - ./opensearch-config.yml:/usr/share/opensearch/config/opensearch.yml
       - node1-logs:/usr/share/opensearch/logs
+      - opensearch-plugins:/usr/share/opensearch/plugins 
     ports:
       - 9200:9200
       - 9600:9600
 
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - opensearch-node1
+
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:2.13.0
+    image: opensearchproject/opensearch-dashboards:latest
     container_name: opensearch-dashboards
     ports:
       - 5601:5601
@@ -35,11 +45,11 @@ services:
     volumes:
       - ./vector.toml:/etc/vector/vector.toml:ro
       - node1-logs:/app/node1-logs:ro
-
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - opensearch-node1
+    ports:
+      - "8686:8686"
 volumes:
   opensearch-data1:
   node1-logs:
+  opensearch-plugins:
