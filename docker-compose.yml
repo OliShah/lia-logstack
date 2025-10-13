@@ -1,0 +1,43 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false   # disable security for local dev
+#      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+#      - es_logs:/usr/share/elasticsearch/logs
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.1.4
+    container_name: logstash
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5000:5000"   # beats input
+      - "9600:9600"   # monitoring API
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - logs_data:/logs
+ #     - es_logs:/app/es_logs:ro
+      - ./i2i_log:/app/i2i_log:ro
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.1.4
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+volumes:
+  es_data:
+  logs_data:
+#  es_logs:
+
