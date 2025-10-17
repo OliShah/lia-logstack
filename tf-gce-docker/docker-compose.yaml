@@ -1,0 +1,12 @@
+services:
+  terraform:
+    build: .
+    container_name: terraform-from-source
+    working_dir: /workspace
+    entrypoint: ["/bin/bash"]
+    volumes:
+      - .:/workspace
+      - ../:/workspace/terraform-google-vm
+      - ~/.config/gcloud:/root/.config/gcloud:ro
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
