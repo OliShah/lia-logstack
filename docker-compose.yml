@@ -25,6 +25,11 @@ services:
       - logs_data:/logs
  #     - es_logs:/app/es_logs:ro
       - ./i2i_log:/app/i2i_log:ro
+    command: >
+      bash -c "
+        /usr/share/logstash/bin/logstash-plugin install logstash-input-google_pubsub &&
+        /usr/local/bin/docker-entrypoint
+      "
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.1.4
